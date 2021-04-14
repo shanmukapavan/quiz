@@ -38,51 +38,84 @@ var Questions = [
     ]
 
 var currentQuestion = 0;
+var storage=0;
 var Score = 0;
 var totQuestions = Questions.length;
 var container = document.getElementById('quizContainer');
-var questionEl = document.getElementById('question').textContent;
+var questionEl = document.getElementById('question');
 var opt1 = document.getElementById('opt1');
 var opt2 = document.getElementById('opt2');
 var opt3 = document.getElementById('opt3');
 var opt4 = document.getElementById('opt4');
 var nextbutton = document.getElementById('nextButton');
 var resultCont = document.getElementById('result');
+var timerBox = document.getElementById('time');
 
 function loadQuestion (questionIndex) {
     var q = Questions[questionIndex];
-    console.log(q);
-    questionEl.textContent = (questionIndex + 1)+ '.'+ q.question;
-    opt1.textContent=q.option1;
-    opt2.textContent=q.option2;
-    opt3.textContent=q.option3;
-    opt4.textContent=q.option4;
+    questionEl.innerText = (questionIndex + 1)+ '.'+ q.question;
+    opt1.innerText=q.option1;
+    opt2.innerText=q.option2;
+    opt3.innerText=q.option3;
+    opt4.innerText=q.option4;
 };
 
 function loadNextQuestion () {
-    var selectedOption = document.querySelector('input[type=radio]:checked');
+     var selectedOption = document.querySelector('input[type=radio]:checked');
     if(!selectedOption){
         alert('please select u r answer');
         return;
     }
-    var answer = selectedOption.Value;
-    if(questions[currentQuestion].answer==answer){
-        score += 1;
+    var answer = selectedOption.value;
+    console.log("myanswer",answer)
+    if(Questions[currentQuestion].answer===answer){
+        Score +=1;
     }
     selectedOption.checked=false;
     currentQuestion++;
-   if(currentQuestion== totQuestions - 1){
-        nextButton.textContent = 'finish';
+   if(currentQuestion== totQuestions ){
+       sessionStorage.setItem("time",JSON.stringify({m:minutes,s:seconds}))
+       storage=JSON.parse(sessionStorage.getItem("time"))
+       console.log(storage.m,storage.s);
+       nextButton.textContent = 'finish';
+       clearInterval(mytime);
     }
     if(currentQuestion == totQuestions){
+
         container.style.display="none"
         resultCont.style.display='';
-     resultCont.textContent= 'Your Score: '+ score;
+        timerBox.style.display='';
+       resultCont.innerHTML= 'Your Score: '+ Score;
+       timerBox.innerHTML='Time taken:'+ storage.m+":"+storage.s;
         return;
     }
     loadQuestion(currentQuestion);
 
+};
 
-}
+let dt=new Date(new Date().setTime(0));
+let time = dt.getTime();
+let seconds = Math.floor((time % (100 * 60))/1000);
+let minutes = Math.floor((time % (1000* 60 * 60))/1000*60);
+let timex = 0;
+
+let mytime=setInterval(function(){
+    if(seconds < 59){
+        seconds++;
+    }
+        else{
+            minutes++;
+            seconds = 0;
+        }
+
+
+    
+
+    // console.log(seconds,minutes);
+    let formatted_sec =seconds < 10 ? `0${seconds}` : `${seconds}`;
+    let formatted_min =minutes < 10? `0${minutes}`:`${minutes}`;
+    document.querySelector("#time").innerHTML=`${formatted_min}:${formatted_sec}`
+},1000);
+
+
 loadQuestion(currentQuestion);
-console.log(loadQuestion)
